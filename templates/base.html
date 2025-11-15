@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fire Detection System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <nav>
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('detect') }}">Detection</a>
+    <a href="{{ url_for('emergency') }}">Emergency</a>
+    <a href="{{ url_for('safety') }}">Safety</a>
+    <a href="{{ url_for('station') }}">Fire Station</a>
+  </nav>
+
+  {% block content %}{% endblock %}
+</body>
+</html>

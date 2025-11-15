@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <h2>🚨 Emergency SOS</h2>
+  <p>If you sense danger, click the button below to activate an emergency alert.</p>
+  <button onclick="playSOS()">Activate SOS</button>
+</div>
+
+<script>
+function playSOS() {
+    const audio = new Audio('{{ url_for('static', filename='sounds/sos.mp3') }}');
+    audio.play();
+    alert("🚨 SOS Activated! Help is on the way.");
+}
+</script>
+{% endblock %}

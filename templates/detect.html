@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fire Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    /* ---- Additional Responsive Styling ---- */
+    .detect-container {
+      text-align: center;
+      padding: 30px 20px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 20px;
+      margin: 40px auto;
+      width: 95%;
+      max-width: 1000px;
+      box-shadow: 0 0 25px red;
+    }
+
+    .btns {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    video, img {
+      border-radius: 15px;
+      box-shadow: 0 0 20px red;
+      max-width: 100%;
+      height: auto;
+    }
+
+    form {
+      margin-top: 10px;
+    }
+
+    #resultFrame {
+      margin-top: 20px;
+      display: none;
+      border-radius: 15px;
+    }
+
+    input[type="file"] {
+      padding: 8px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      .detect-container {
+        padding: 20px;
+      }
+
+      .btns {
+        flex-direction: column;
+      }
+
+      video, img {
+        width: 100%;
+        height: auto;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 320px;
+        margin: auto;
+      }
+
+      input[type="file"] {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="{{ url_for('home') }}">Home</a>
+    <a class="active" href="{{ url_for('detect') }}">Detect</a>
+    <a href="{{ url_for('emergency') }}">Emergency</a>
+    <a href="{{ url_for('safety') }}">Safety</a>
+    <a href="{{ url_for('station') }}">Station</a>
+  </nav>
+
+  <div class="detect-container">
+    <h1>🔥 Fire Detection</h1>
+
+    <div class="btns">
+      <button class="btn" id="manualBtn">Manual Video Detection</button>
+      <button class="btn" id="liveBtn">Live Camera Detection</button>
+    </div>
+
+    <!-- ========== Manual Fire Detection Section ========== -->
+    <div id="manualSection">
+      <form method="POST" action="{{ url_for('detect') }}" enctype="multipart/form-data">
+        <p>Upload a video file to scan for fire:</p>
+        <input type="file" name="video" accept="video/*" required>
+        <div style="margin-top: 10px;">
+          <button type="submit" class="btn">Start Detection</button>
+        </div>
+      </form>
+
+      {% if detected is not none %}
+        {% if detected %}
+          <h3 style="color: red; margin-top: 20px;">🔥 Fire Detected!</h3>
+          <img src="{{ '/' + frame_path }}" alt="Detected Frame" width="640">
+        {% else %}
+          <h3 style="color: lightgreen; margin-top: 20px;">✅ No Fire Detected</h3>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <!-- ========== Live Fire Detection Section ========== -->
+    <div id="liveSection" style="display:none;">
+      <div style="margin-bottom: 15px;">
+        <video id="liveVideo" autoplay playsinline></video>
+        <canvas id="captureCanvas" width="640" height="480" style="display:none;"></canvas>
+      </div>
+
+      <div style="margin-top: 15px;">
+        <button class="btn" id="startLive">Start Camera</button>
+        <button class="btn" id="stopLive" style="display:none;">Stop Camera</button>
+      </div>
+
+      <img id="resultFrame" src="" alt="Detected Fire Frame">
+
+      <audio id="sosSound" src="{{ url_for('static', filename='sounds/sos.mp3') }}" preload="auto"></audio>
+    </div>
+  </div>
+
+  <script>
+    // Section toggling
+    const manualBtn = document.getElementById('manualBtn');
+    const liveBtn = document.getElementById('liveBtn');
+    const manualSection = document.getElementById('manualSection');
+    const liveSection = document.getElementById('liveSection');
+
+    manualBtn.onclick = () => {
+      manualSection.style.display = 'block';
+      liveSection.style.display = 'none';
+    };
+
+    liveBtn.onclick = () => {
+      manualSection.style.display = 'none';
+      liveSection.style.display = 'block';
+    };
+
+    // Live camera detection
+    const video = document.getElementById('liveVideo');
+    const canvas = document.getElementById('captureCanvas');
+    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('startLive');
+    const stopBtn = document.getElementById('stopLive');
+    const sosSound = document.getElementById('sosSound');
+    const resultFrame = document.getElementById('resultFrame');
+
+    let stream;
+    let interval;
+
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
+        interval = setInterval(captureAndSend, 1500);
+      } catch (err) {
+        alert("Camera access denied or not available.");
+      }
+    }
+
+    function stopCamera() {
+      clearInterval(interval);
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+    }
+
+    async function captureAndSend() {
+      if (video.readyState === 4) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imgData = canvas.toDataURL('image/jpeg');
+        const res = await fetch("/verify_snapshot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: imgData })
+        });
+        const data = await res.json();
+        if (data.fire) {
+          sosSound.play();
+          resultFrame.src = "/" + data.frame_path;
+          resultFrame.style.display = "block";
+          alert("🔥 FIRE DETECTED! SOS Triggered!");
+          stopCamera();
+        }
+      }
+    }
+
+    startBtn.onclick = startCamera;
+    stopBtn.onclick = stopCamera;
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+Precision (0.8610)
+This means your model is right 86% of the time when it predicts something as positive (e.g., detects an object). So, it’s not over-triggering — pretty reliable detections.
+
+Recall (0.7528)
+About 75% of all true objects were detected. This could go up with a few more epochs or slightly higher image size (like imgsz=800). It’s decent but can be improved.
+
+mAP@50 (0.8338)
+This metric combines precision and recall at 50% IoU (intersection over union). An mAP@50 of 0.83 means your detections are quite accurate — bounding boxes are well-aligned most of the time.
+
+mAP@50-95 (0.5734)
+This is a stricter version (averaged over IoU thresholds from 0.5 to 0.95). 0.57 is respectable — improving this usually requires more epochs, a larger model (e.g. yolov8m.pt), or better-augmented data.

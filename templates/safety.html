@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <h2>🧯 Fire Safety Measures</h2>
+  <ul style="text-align:left; display:inline-block;">
+    <li>Install smoke alarms and test them monthly.</li>
+    <li>Keep fire extinguishers handy and learn how to use them.</li>
+    <li>Never leave cooking unattended.</li>
+    <li>Keep flammable items away from heat sources.</li>
+    <li>Plan and practice fire escape routes.</li>
+    <li>Stop, drop, and roll if your clothes catch fire.</li>
+  </ul>
+
+  <h3>Ask the Safety Bot</h3>
+  <input type="text" id="userInput" placeholder="Ask about fire safety...">
+  <button onclick="respond()">Ask</button>
+  <p id="botResponse"></p>
+</div>
+
+<script>
+function respond() {
+    let question = document.getElementById("userInput").value.toLowerCase();
+    let response = "Stay safe and alert!";
+    if (question.includes("extinguisher")) response = "Use PASS: Pull, Aim, Squeeze, Sweep.";
+    else if (question.includes("smoke")) response = "Stay low and cover your nose while escaping.";
+    else if (question.includes("fire")) response = "Move to safety and call 101 immediately.";
+    document.getElementById("botResponse").innerText = response;
+}
+</script>
+{% endblock %}

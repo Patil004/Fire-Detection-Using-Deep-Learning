@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="hero">
+  <h1>🚒 AI Fire Detection System</h1>
+  <p>Real-time fire detection and emergency response powered by Deep Learning.</p>
+</div>
+
+<div class="about-section">
+  <div class="about-content">
+    <div class="about-image">
+      <img src="{{ url_for('static', filename='images/fire-station.webp') }}" alt="Bidar Fire Station">
+    </div>
+    <div class="about-text">
+      <h2>About Bidar Fire Station</h2>
+      <p>
+        Bidar Fire Station stands as a symbol of safety and dedication, operating 24/7 to protect citizens
+        and property from fire hazards. Equipped with advanced rescue vehicles, trained firefighters, and
+        emergency tools, the department ensures quick response to emergencies within and around the Bidar district. The station also conducts fire safety awareness drives across schools, public institutions, and industries,
+        helping people learn how to prevent and respond to fire-related incidents effectively.
+      </p>
+    
+    </div>
+  </div>
+</div>
+
+<div class="mission-vision">
+  <div class="card mission">
+    <h3>🔥 Mission</h3>
+    <p>
+      To protect lives, property, and the environment through rapid emergency response, continuous training,
+      and community partnerships. The mission focuses on prevention first — through education, preparedness,
+      and proactive inspections.
+    </p>
+  </div>
+  <div class="card vision">
+    <h3>💡 Vision</h3>
+    <p>
+      To build a fire-safe Bidar where every citizen is aware, every home is prepared, and every emergency
+      is met with efficient, technology-driven response. The vision embraces innovation, AI integration,
+      and smarter public safety infrastructure.
+    </p>
+  </div>
+</div>
+{% endblock %}
